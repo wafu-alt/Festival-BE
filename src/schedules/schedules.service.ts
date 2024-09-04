@@ -129,7 +129,7 @@ export class SchedulesService {
     );
 
     this.logger.log(
-      `EFestivalList 테이블에 [${newFetchSaveItems.length}] 데이터가 추가되어야 합니다.\n = 새로 받은 contentId 갯수 [${item.length}] - 기존 contentId 갯수 [${listTableContentIds.size}]`,
+      `EFestivalList 테이블에 [${newFetchSaveItems.length}] 데이터가 추가되어야 합니다.`,
     );
 
     // 데이터 파싱 후 각 데이터를 객체로 만들어서 [{},{}, ...]로 리턴
@@ -217,12 +217,12 @@ export class SchedulesService {
 
     // ContentId만 추출하여 Set으로 변환
     const fesDetailContentIdsSet = new Set(
-      fesDetailTableContentIds.map((item) => item.ContentId),
+      fesDetailTableContentIds.map((item) => item.contentId),
     );
 
     // 중복되는 ContentIds 거르기
     const notDuplicatedContentIds = listTableContentIds.filter(
-      (item) => !fesDetailContentIdsSet.has(item.ContentId),
+      (item) => !fesDetailContentIdsSet.has(item.contentId),
     );
 
     this.logger.log(
