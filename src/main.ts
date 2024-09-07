@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,7 +21,8 @@ async function bootstrap() {
   app.enableCors(corsConfig);
 
   // 서버 포트 파싱
-  const serverPort = process.env.SERVER_PORT;
+  const configService = app.get(ConfigService);
+  const serverPort = configService.get('SERVER_PORT');
 
   // 서버 실행
   await app.listen(serverPort);
