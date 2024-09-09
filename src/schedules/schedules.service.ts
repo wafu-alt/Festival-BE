@@ -5,7 +5,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { EFestivalList, EFestivalDetail } from './schedules.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { JSDOM } from 'jsdom';
 
 //TODO : type 연결 제대로 해주기
