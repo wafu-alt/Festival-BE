@@ -6,6 +6,7 @@ import { typeORMConfig } from './configs/typeorm.config';
 import { SchedulesModule } from './schedules/schedules.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { FestivalModule } from './festival/festival/festival.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     // BoardsModule,
     // AuthModule,
+    FestivalModule,
     SchedulesModule, // 커스텀 모듈 연결
     ScheduleModule.forRoot(), // 스케쥴링 기능 연결
     // DB 비동기 연결 설정
