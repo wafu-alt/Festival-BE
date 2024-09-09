@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -19,6 +19,9 @@ async function bootstrap() {
 
   // cors 설정
   app.enableCors(corsConfig);
+
+  // 글로벌 파이프 설정
+  app.useGlobalPipes(new ValidationPipe());
 
   // 서버 포트 파싱
   const configService = app.get(ConfigService);
