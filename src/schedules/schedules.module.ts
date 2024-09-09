@@ -10,6 +10,7 @@ import { EFestivalList, EFestivalDetail } from './schedules.entity';
     HttpModule,
     TypeOrmModule.forFeature([EFestivalList, EFestivalDetail]),
   ],
+  exports: [TypeOrmModule.forFeature([EFestivalList, EFestivalDetail])],
   controllers: [SchedulesController],
   providers: [SchedulesService],
 })
