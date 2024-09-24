@@ -10,7 +10,7 @@ import { FestivalStatus } from './schedules-status.enum';
 // EFestivalList에는 이벤트 리스트 정보가 담김
 @Entity('EFestivalList')
 export class EFestivalList {
-  @PrimaryGeneratedColumn() // id열이 Board 엔티티의 기본 키 열임을 나타냄
+  @PrimaryGeneratedColumn() // id열이 EFestivalList 엔티티의 기본 키 열임을 나타냄
   Id: number;
 
   /** 고유아이디
@@ -28,7 +28,7 @@ export class EFestivalList {
   /** 제목
    * @param title
    */
-  @Column() // Board 엔티티 열을 나타내는데 사용
+  @Column()
   Title: string;
 
   /** 시작일
@@ -92,7 +92,7 @@ export class EFestivalList {
 // EFestivalDetail에는 이벤트 상세정보가 담김
 @Entity('EFestivalDetail')
 export class EFestivalDetail {
-  @PrimaryGeneratedColumn() // id열이 Board 엔티티의 기본 키 열임을 나타냄
+  @PrimaryGeneratedColumn() // id열이 EFestivalDetail 엔티티의 기본 키 열임을 나타냄
   Id: number;
 
   @Column({ unique: true })
@@ -110,7 +110,6 @@ export class EFestivalDetail {
   @Column()
   ThumbnailImage: string;
 
-  //
   /** 풀(우편번호 포함) 주소
    * @param 'zipcode + addr1 + addr2'
    */
@@ -135,7 +134,6 @@ export class EFestivalDetail {
   @Column()
   PlanHostTel: string;
 
-  //
   /** 주관사
    * @param sponsor2
    */
