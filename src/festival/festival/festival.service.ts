@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EFestivalDetail, EFestivalList } from 'src/schedules/schedules.entity';
 import { Repository } from 'typeorm';
@@ -37,10 +37,10 @@ export class FestivalService {
       ) // EFestivalDetail 조인
       .orderBy(
         `CASE 
-      WHEN festival.Status = 'BEING' THEN 1 
-      WHEN festival.Status = 'UPCOMING' THEN 2 
-      ELSE 3 
-    END`,
+          WHEN festival.Status = 'BEING' THEN 1 
+          WHEN festival.Status = 'UPCOMING' THEN 2 
+          ELSE 3 
+        END`,
       )
       .addOrderBy('festival.StartDate', 'ASC')
       .select([
@@ -72,6 +72,62 @@ export class FestivalService {
       EndDate: formatDate(item.StartDate),
       ThumbnailImage: item.ThumbnailImage || '',
     }));
+
+    return result;
+  }
+
+  /** 특정 축제 상세 정보 가져오기 */
+  async getFestivalById(id: number) {
+    // 쿼리
+    /**
+     * SELECT
+     *  "list"."Title" AS "Title", "list"."StartDate" AS "StartDate", "list"."EndDate" AS "EndDate", detail.*
+     * FROM "EFestivalDetail" "detail"
+     * LEFT JOIN "EFestivalList" "list" ON "detail"."ContentId" = "list"."ContentId"
+     * WHERE "detail"."ContentId" = $1
+     */
+    const _festivalData = this.festivalDetailRepository
+      .createQueryBuilder('detail')
+      .leftJoinAndSelect(
+        'EFestivalList',
+        'list',
+        'detail.ContentId = list.ContentId',
+      )
+      .select([
+        'list.Title AS "Title"',
+        'list.StartDate AS "StartDate"',
+        'list.EndDate AS "EndDate"',
+        'detail.*',
+      ])
+      .where('detail.ContentId = :id', { id });
+
+    // DB에서 조회
+    const festivalData = await _festivalData.getRawOne();
+
+    // festivalData은 데이터가 없을 경우 null값을 리턴된다
+    if (!festivalData) {
+      throw new NotFoundException(
+        `[${id}] 해당 상세 축제 정보를 찾을 수 없습니다.`,
+      );
+    }
+
+    // 날짜 변환을 위한 파싱 Date -> string
+    const { StartDate, EndDate } = festivalData;
+
+    const result = {
+      ...festivalData,
+      StartDate: formatDate(StartDate),
+      EndDate: formatDate(EndDate),
+    };
+
+    // 썸네일 제거
+    delete result.ThumbnailImage;
+    // 주관사 제거
+    delete result.ManageHost;
+    delete result.ManageHostTel;
+    // MapX와 MapY 제거
+    delete result.MapX;
+    delete result.MapY;
 
     return result;
   }
