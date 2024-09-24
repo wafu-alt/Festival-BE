@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EFestivalList } from 'src/schedules/schedules.entity';
+import { EFestivalDetail, EFestivalList } from 'src/schedules/schedules.entity';
 import { Repository } from 'typeorm';
 import { formatDate } from '@utils/date';
 
@@ -8,29 +8,33 @@ import { formatDate } from '@utils/date';
 export class FestivalService {
   constructor(
     @InjectRepository(EFestivalList)
-    private festivalListRepository: Repository<EFestivalList>,
+    private festivalListRepository: Repository<EFestivalList>, // EFestivalList 레포지토리 추가
+
+    @InjectRepository(EFestivalDetail)
+    private festivalDetailRepository: Repository<EFestivalDetail>, // EFestivalDetail 레포지토리 추가
   ) {}
 
   /** 축제 일정 가져오기 */
   async getFestivalList(page: number, limit?: number) {
-    // 숫자로 변환
-    const _limit = Number(limit);
+    // 페이징네이션 설정
+    const _pageSize = limit ? Number(limit) : undefined;
+    const _page = _pageSize ? (page - 1) * _pageSize : 0; // limit이 없으면 offset은 0 = 전체 조회
 
     // 쿼리
     /**
-     * SELECT *
-      FROM "EFestivalList"
-      ORDER BY
-        CASE
-          WHEN "Status" = 'BEING' THEN 1
-          WHEN "Status" = 'UPCOMING' THEN 2
+    SELECT festival.*, "detail"."ThumbnailImage" AS "ThumbnailImage" FROM "EFestivalList" "festival" LEFT JOIN "EFestivalDetail" "detail" ON "festival"."ContentId" = "detail"."ContentId" ORDER BY CASE
+          WHEN "festival"."Status" = 'BEING' THEN 1
+          WHEN "festival"."Status" = 'UPCOMING' THEN 2
           ELSE 3
-        END,
-        "StartDate" ASC
-      LIMIT 15 OFFSET 0
+        END ASC, "festival"."StartDate" ASC LIMIT 15 OFFSET 1
      */
     const listQuery = this.festivalListRepository
       .createQueryBuilder('festival')
+      .leftJoinAndSelect(
+        'EFestivalDetail',
+        'detail',
+        'festival.ContentId = detail.ContentId',
+      ) // EFestivalDetail 조인
       .orderBy(
         `CASE 
       WHEN festival.Status = 'BEING' THEN 1 
@@ -39,11 +43,14 @@ export class FestivalService {
     END`,
       )
       .addOrderBy('festival.StartDate', 'ASC')
-      .select('*');
+      .select([
+        'festival.*',
+        'detail.ThumbnailImage AS "ThumbnailImage"', // 가져올 ThumbnailImage 컬럼 추가
+      ]);
 
     // 페이징네이션 설정
-    if (_limit) {
-      listQuery.skip((page - 1) * _limit).take(_limit);
+    if (_pageSize) {
+      listQuery.offset(_page).limit(_pageSize);
     }
 
     // else : limit 값이 없을경우 전체 데이터 조회
@@ -63,6 +70,7 @@ export class FestivalService {
       ExternalApiUpdateDate: formatDate(item.ExternalApiUpdateDate, true),
       StartDate: formatDate(item.StartDate),
       EndDate: formatDate(item.StartDate),
+      ThumbnailImage: item.ThumbnailImage || '',
     }));
 
     return result;
