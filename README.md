@@ -71,3 +71,15 @@
    ```sh
    npm run start:dev
    ```
+
+### 추가돼야 할 개발
+
+- TASK 중 오류 난 것 LOG 남기는 테이블 추가, 관련 로직 추가
+- 관리자 로그인 로직 추가
+- CONTENT ID로 LIST 추가, 수정, 삭제 API
+- CONTENT ID로 DETAIL 추가, 수정, 삭제 API
+- LOG 조회 API
+
+### 해결한 경험
+
+- CORS 에러
