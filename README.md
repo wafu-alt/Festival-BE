@@ -82,4 +82,5 @@
 
 ### 해결한 경험
 
-- CORS 에러
+- [CORS 문제에 대한 설정하기](https://blog.naver.com/dacapolin/223604790062)
+- [특정 횟수 요청 후 CORS 에러](https://blog.naver.com/dacapolin/223604801082)
