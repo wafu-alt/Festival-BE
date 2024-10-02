@@ -43,7 +43,7 @@ export class EFestivalList {
   @Column()
   EndDate: Date;
 
-  /** 이벤트 상태 */
+  /** 축제 상태 */
   @Column({
     type: 'enum',
     enum: FestivalStatus,
