@@ -69,7 +69,7 @@ export class FestivalService {
       ExternalApiCreateDate: formatDate(item.ExternalApiCreateDate, true),
       ExternalApiUpdateDate: formatDate(item.ExternalApiUpdateDate, true),
       StartDate: formatDate(item.StartDate),
-      EndDate: formatDate(item.StartDate),
+      EndDate: formatDate(item.EndDate),
       ThumbnailImage: item.ThumbnailImage || '',
     }));
 
