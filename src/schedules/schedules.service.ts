@@ -560,4 +560,83 @@ export class SchedulesService {
 
     this.logger.log(`종료 : 20시 스케쥴 종료`);
   }
+
+  /** 매일 00:10분마다 스케쥴 실행 */
+  @Cron('0 10 0 * * *')
+  async updateFestivalListStatus() {
+    this.logger.log(
+      `시작 : 00:10분 스케쥴 시작
+> > > > > > > > List 데이터 상태 변경 로직`,
+    );
+    // 현재 날짜 가져오기 (dayjs 사용)
+    const today = dayjs().toDate();
+    this.logger.verbose(`시작 : 이벤트 시작[${today}]`);
+
+    // 트랜잭션을 위한 QueryRunner 생성
+    const queryRunner =
+      this.festivalListRepository.manager.connection.createQueryRunner();
+
+    // 연결 시작
+    await queryRunner.connect();
+    // 트랜잭션 시작
+    await queryRunner.startTransaction();
+
+    this.logger.log(`트랜잭션 [updateFestivalListStatus]에서 시작`);
+
+    try {
+      // BEING 상태로 업데이트 쿼리
+      const beingResult = await queryRunner.manager
+        .createQueryBuilder()
+        .update(EFestivalList)
+        .set({ Status: 'BEING' })
+        .where('StartDate <= :today', { today })
+        .andWhere(':today < EndDate  ', { today })
+        .andWhere('Status != :status', { status: 'ENDED' })
+        .returning(['ContentId'])
+        .execute();
+
+      // 배열 정제 [{},{} ...] > [1,2 ...]
+      const beingResultItems = beingResult.raw.map((item) => item.ContentId);
+
+      this.logger.verbose(
+        `BEING 상태로 성공한 갯수 : [${beingResultItems.length}] \n해당 ContentId : [${beingResultItems}]`,
+      );
+
+      // ENDED 상태로 업데이트 쿼리
+      const endedResult = await queryRunner.manager
+        .createQueryBuilder()
+        .update(EFestivalList)
+        .set({ Status: 'ENDED' })
+        .where('EndDate < :date', { date: new Date() })
+        .andWhere('Status != :status', { status: 'ENDED' })
+        .returning(['ContentId'])
+        .execute();
+
+      // 배열 정제 [{},{} ...] > [1,2 ...]
+      const endedResultItems = endedResult.raw.map((item) => item.ContentId);
+
+      this.logger.verbose(
+        `ENDED 상태로 성공한 갯수 : [${endedResultItems.length}] \n해당 ContentId : [${endedResultItems}]`,
+      );
+
+      // 트랜잭션 커밋
+      await queryRunner.commitTransaction();
+
+      this.logger.log(`성공적으로 상태 업데이트 하였습니다.`);
+    } catch (error) {
+      // 에러 발생 시 롤백
+      await queryRunner.rollbackTransaction();
+
+      this.logger.error(
+        `트랜잭션 [updateFestivalListStatus]에서 에러 발생 롤백`,
+      );
+
+      throw error;
+    } finally {
+      // 트랜잭션 해제
+      await queryRunner.release();
+
+      this.logger.log(`트랜잭션 [updateFestivalListStatus]에서 해제`);
+    }
+  }
 }
