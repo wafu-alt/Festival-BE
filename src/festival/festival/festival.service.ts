@@ -42,7 +42,7 @@ export class FestivalService {
           ELSE 3 
         END`,
       )
-      .addOrderBy('festival.StartDate', 'ASC')
+      .addOrderBy('festival.EndDate', 'ASC')
       .select([
         'festival.*',
         'detail.ThumbnailImage AS "ThumbnailImage"', // 가져올 ThumbnailImage 컬럼 추가
