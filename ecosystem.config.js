@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'FesMoa-api', // 프로세스 이름
+      name: 'fesmoa-api', // 프로세스 이름
       script: './dist/main.js', // 스크립트는 main.js 사용
       cwd: './', // 현재 디렉토리
       // exec_mode: 'cluster', // 여러 프로세스 생성, 애플리케이션을 병렬로 실행 , 기본은 fork
